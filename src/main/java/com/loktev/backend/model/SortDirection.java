@@ -1,4 +1,4 @@
-package com.handson.backend.model;
+package com.loktev.backend.model;
 
 public enum SortDirection {
     asc,desc

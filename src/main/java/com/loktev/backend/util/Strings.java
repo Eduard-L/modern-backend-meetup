@@ -1,4 +1,4 @@
-package com.handson.backend.util;
+package com.loktev.backend.util;
 
 public class Strings {
 

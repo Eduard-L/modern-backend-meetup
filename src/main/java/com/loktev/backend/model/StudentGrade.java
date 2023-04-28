@@ -1,6 +1,9 @@
 package com.loktev.backend.model;
 
-
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.loktev.backend.model.Student;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,17 +16,15 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name="student")
-public class Student implements Serializable {
+@Table(name="student_grade")
+public class StudentGrade implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -33,25 +34,20 @@ public class Student implements Serializable {
     @Column(nullable = false, updatable = false)
     private Date createdAt = new Date();
 
+
+    @JsonIgnore
+    @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "studentId")
+    private Student student;
+
     @NotEmpty
     @Length(max = 60)
-    private String fullname;
+    private String courseName;
 
 
-    @Min(100)
-    @Max(800)
-    private Integer satScore;
+    @Min(10)
+    @Max(100)
+    private Integer courseScore;
 
-    @Min(30)
-    @Max(110)
-    private Double graduationScore;
-
-    @Length(max = 20)
-    private String phone;
-
-    @Length(max = 500)
-    private String profilePicture;
-
-    @OneToMany(mappedBy = "student", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Collection<StudentGrade> studentGrades = new ArrayList<>();
 }

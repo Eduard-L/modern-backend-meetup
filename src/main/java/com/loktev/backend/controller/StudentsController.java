@@ -2,8 +2,8 @@ package com.loktev.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.handson.backend.model.PaginationAndList;
-import com.handson.backend.model.SortDirection;
+import com.loktev.backend.model.PaginationAndList;
+import com.loktev.backend.model.SortDirection;
 import com.loktev.backend.model.Student;
 import com.loktev.backend.model.StudentIn;
 import com.loktev.backend.model.StudentOut;
@@ -19,10 +19,10 @@ import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.Optional;
 
-import static com.handson.backend.util.FPS.FPSBuilder.aFPS;
-import static com.handson.backend.util.FPSCondition.FPSConditionBuilder.aFPSCondition;
-import static com.handson.backend.util.FPSField.FPSFieldBuilder.aFPSField;
-import static com.handson.backend.util.Strings.likeLowerOrNull;
+import static com.loktev.backend.util.FPS.FPSBuilder.aFPS;
+import static com.loktev.backend.util.FPSCondition.FPSConditionBuilder.aFPSCondition;
+import static com.loktev.backend.util.FPSField.FPSFieldBuilder.aFPSField;
+import static com.loktev.backend.util.Strings.likeLowerOrNull;
 
 @RestController
 @RequestMapping("/api/students")
@@ -49,18 +49,20 @@ public class StudentsController {
                                                     @RequestParam(required = false) Integer toGraduationScore,
                                                     @RequestParam(required = false) Integer fromSatScore,
                                                     @RequestParam(required = false) Integer toSatScore,
+                                                    @RequestParam(required = false) Integer fromAvgScore,
                                                     @RequestParam(defaultValue = "1") Integer page,
                                                     @RequestParam(defaultValue = "50") @Min(1) Integer count,
-                                                    @RequestParam(defaultValue = "id") StudentSortField sort, @RequestParam(defaultValue = "desc") SortDirection sortDirection) throws JsonProcessingException, JsonProcessingException {
+                                                    @RequestParam(defaultValue = "id") StudentSortField sort, @RequestParam(defaultValue = "asc") SortDirection sortDirection) throws JsonProcessingException {
 
         var res = aFPS().select(List.of(
-                        aFPSField().field("id").alias("id").build(),
-                        aFPSField().field("created_at").alias("createdat").build(),
-                        aFPSField().field("fullname").alias("fullname").build(),
-                        aFPSField().field("sat_score").alias("satscore").build(),
-                        aFPSField().field("graduation_score").alias("graduationscore").build(),
-                        aFPSField().field("phone").alias("phone").build(),
-                        aFPSField().field("profile_picture").alias("profilepicture").build()
+                        aFPSField().field("s.id").alias("id").build(),
+                        aFPSField().field("s.created_at").alias("createdat").build(),
+                        aFPSField().field("s.fullname").alias("fullname").build(),
+                        aFPSField().field("s.sat_score").alias("satscore").build(),
+                        aFPSField().field("s.graduation_score").alias("graduationscore").build(),
+                        aFPSField().field("s.phone").alias("phone").build(),
+                        aFPSField().field("s.profile_picture").alias("profilepicture").build(),
+                        aFPSField().field("(select avg(sg.course_score) from  student_grade sg where sg.student_id = s.id ) ").alias("avgscore").build()
                 ))
                 .from(List.of(" student s"))
                 .conditions(List.of(
@@ -68,7 +70,8 @@ public class StudentsController {
                         aFPSCondition().condition("( graduation_score >= :fromGraduationScore )").parameterName("fromGraduationScore").value(fromGraduationScore).build(),
                         aFPSCondition().condition("( graduation_score <= :toGraduationScore )").parameterName("toGraduationScore").value(toGraduationScore).build(),
                         aFPSCondition().condition("( sat_score >= :fromSatScore )").parameterName("fromSatScore").value(fromSatScore).build(),
-                        aFPSCondition().condition("( sat_score <= :toSatScore )").parameterName("toSatScore").value(toSatScore).build()
+                        aFPSCondition().condition("( sat_score <= :toSatScore )").parameterName("toSatScore").value(toSatScore).build(),
+                        aFPSCondition().condition("( (select avg(sg.course_score) from  student_grade sg where sg.student_id = s.id ) >= :fromAvgScore )").parameterName("fromAvgScore").value(fromAvgScore).build()
                 )).sortField(sort.fieldName).sortDirection(sortDirection).page(page).count(count)
                 .itemClass(StudentOut.class)
                 .build().exec(em, om);
