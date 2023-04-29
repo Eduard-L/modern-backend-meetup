@@ -1,5 +1,5 @@
 HELP.md
-target/
+../target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -22,7 +22,7 @@ target/
 /nbproject/private/
 /nbbuild/
 /dist/
-data/
+/data/*
 /nbdist/
 /.nb-gradle/
 build/
@@ -32,4 +32,3 @@ build/
 ### VS Code ###
 .vscode/
 /data/
-
